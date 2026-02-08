@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Birthday</string>
+    <string name="widget_description">Muestra el progreso desde tu último cumpleaños hasta el próximo</string>
+    <string name="progress_ring_description">Anillo de progreso del cumpleaños</string>
+    <string name="icon_cake_description">Icono de pastel de cumpleaños</string>
+    <string name="default_percentage">0</string>
+</resources>
