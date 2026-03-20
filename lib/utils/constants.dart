@@ -1,29 +1,5 @@
-import 'package:flutter/material.dart';
-
 class AppConstants {
   AppConstants._();
-
-  // ============================================================================
-  // COLORES
-  // ============================================================================
-
-  /// Color primario de texto (casi negro).
-  static const Color primaryTextColor = Color(0xFF1F1F1F);
-
-  /// Color secundario de texto (gris).
-  static const Color secondaryTextColor = Color(0xFF666666);
-
-  /// Color de fondo de los dropdowns.
-  static const Color dropdownBackgroundColor = Color(0xFFF5F5F5);
-
-  /// Color del borde de los dropdowns.
-  static const Color dropdownBorderColor = Color(0xFFE0E0E0);
-
-  /// Color de la pista del anillo de progreso.
-  static const Color progressTrackColor = Color(0xFFECECEC);
-
-  /// Color del anillo de progreso activo.
-  static const Color progressRingColor = Color(0xFF2F80ED);
 
   // ============================================================================
   // TEXTOS

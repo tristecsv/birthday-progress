@@ -4,19 +4,21 @@ import 'dart:math' as math;
 
 class CircularProgress extends StatefulWidget {
   final double progress;
+  final int days;
   final double size;
   final double strokeWidth;
-  final Color progressColor;
-  final Color trackColor;
+  final Color? progressColor;
+  final Color? trackColor;
   final Duration animationDuration;
 
   const CircularProgress({
     super.key,
     required this.progress,
+    required this.days,
     this.size = 150.0,
     this.strokeWidth = 18.0,
-    this.progressColor = AppConstants.progressRingColor,
-    this.trackColor = AppConstants.progressTrackColor,
+    this.progressColor,
+    this.trackColor,
     this.animationDuration = AppConstants.progressAnimationDuration,
   });
 
@@ -24,8 +26,7 @@ class CircularProgress extends StatefulWidget {
   State<CircularProgress> createState() => _CircularProgressState();
 }
 
-class _CircularProgressState extends State<CircularProgress>
-    with SingleTickerProviderStateMixin {
+class _CircularProgressState extends State<CircularProgress> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
 
@@ -91,8 +92,10 @@ class _CircularProgressState extends State<CircularProgress>
     return AnimatedBuilder(
         animation: _progressAnimation,
         builder: (context, child) {
-          final int percentage =
-              (_progressAnimation.value.clamp(0.0, 1.0) * 100).toInt();
+          final int percentage = (_progressAnimation.value.clamp(0.0, 1.0) * 100).toInt();
+          final theme = Theme.of(context);
+          final resolvedProgressColor = widget.progressColor ?? theme.colorScheme.primary;
+          final resolvedTrackColor = widget.trackColor ?? theme.colorScheme.surfaceContainerHighest;
 
           return SizedBox(
             width: widget.size,
@@ -105,20 +108,31 @@ class _CircularProgressState extends State<CircularProgress>
                   painter: _ProgressRingPainter(
                     progress: _progressAnimation.value,
                     strokeWidth: widget.strokeWidth,
-                    progressColor: widget.progressColor,
-                    trackColor: widget.trackColor,
+                    progressColor: resolvedProgressColor,
+                    trackColor: resolvedTrackColor,
                   ),
                 ),
                 Positioned(
                   top: widget.size / 3,
                   child: Icon(Icons.cake_rounded, size: widget.size / 3),
                 ),
+                Positioned(
+                  bottom: widget.size / 6,
+                  child: Text(
+                    '$percentage%',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                  ),
+                ),
                 Text(
-                  '$percentage',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  '${widget.days} días',
+                  style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 32,
-                        color: AppConstants.primaryTextColor,
+                        fontSize: 24,
+                        color: theme.colorScheme.onSurface,
                       ),
                 ),
               ],

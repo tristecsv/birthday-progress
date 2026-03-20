@@ -36,4 +36,10 @@ class BirthdayCalculator {
 
     return (elapsed / total).clamp(0.0, 1.0);
   }
+
+  int get daysUntilNextBirthday {
+    final now = DateTime.now();
+    final next = nextBirthday;
+    return next.difference(now).inDays;
+  }
 }
