@@ -18,7 +18,7 @@ class BirthdayDisplayText extends StatelessWidget {
         Text(
           'Próximo cumpleaños',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppConstants.secondaryTextColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
         ),
@@ -26,7 +26,7 @@ class BirthdayDisplayText extends StatelessWidget {
         Text(
           formattedDate,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppConstants.primaryTextColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),

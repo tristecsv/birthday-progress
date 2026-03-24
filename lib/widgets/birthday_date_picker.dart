@@ -17,13 +17,16 @@ class BirthdayDatePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int maxDays = DateTime(2000, selectedMonth + 1, 0).day;
+    int safeSelectedDay = selectedDay > maxDays ? maxDays : selectedDay;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _DateDropdown(
           label: 'Día',
-          value: selectedDay,
-          items: List.generate(31, (i) => i + 1),
+          value: safeSelectedDay,
+          items: List.generate(maxDays, (i) => i + 1),
           onChanged: onDayChanged,
         ),
         const SizedBox(width: 16),
@@ -62,7 +65,7 @@ class _DateDropdown extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppConstants.secondaryTextColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
         ),
@@ -70,16 +73,16 @@ class _DateDropdown extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppConstants.dropdownBackgroundColor,
+            color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppConstants.dropdownBorderColor),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           ),
           child: DropdownButton<int>(
             value: value,
             underline: const SizedBox.shrink(),
             icon: const Icon(Icons.keyboard_arrow_down, size: 20),
             elevation: 2,
-            dropdownColor: AppConstants.dropdownBackgroundColor,
+            dropdownColor: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(12),
             items: items
                 .map((i) => DropdownMenuItem(

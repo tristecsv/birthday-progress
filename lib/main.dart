@@ -1,4 +1,5 @@
 import 'package:birthday_progress/screens/home_screen.dart';
+import 'package:birthday_progress/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MainApp());
@@ -8,9 +9,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      themeMode: ThemeMode.system,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }

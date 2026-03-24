@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late BirthdayCalculator _calculator;
   Timer? _updateTimer;
   double _targetProgress = 0.0;
+  int _daysUntilNextBirthday = 0;
 
   @override
   void initState() {
@@ -33,26 +34,37 @@ class _HomeScreenState extends State<HomeScreen> {
         day: savedDate.day,
         month: savedDate.month,
       );
+      await WidgetUpdateService.updateWidget(savedDate.day, savedDate.month);
     }
 
     if (mounted) {
+      _daysUntilNextBirthday = _calculator.daysUntilNextBirthday;
       setState(() => _targetProgress = _calculator.progress);
     }
   }
 
   void _onDateChanged({int? day, int? month}) async {
+    int newMonth = month ?? _calculator.month;
+    int newDay = day ?? _calculator.day;
+
+    int maxDays = DateTime(2000, newMonth + 1, 0).day;
+    if (newDay > maxDays) {
+      newDay = maxDays;
+    }
+
     setState(() {
       _calculator = BirthdayCalculator(
-        day: day ?? _calculator.day,
-        month: month ?? _calculator.month,
+        day: newDay,
+        month: newMonth,
       );
     });
 
     final date = DateTime(2000, _calculator.month, _calculator.day);
     await BirthdayStorage.save(date);
-    await WidgetUpdateService.updateWidget();
+    await WidgetUpdateService.updateWidget(_calculator.day, _calculator.month);
 
     if (mounted) {
+      _daysUntilNextBirthday = _calculator.daysUntilNextBirthday;
       setState(() => _targetProgress = _calculator.progress);
       _startUpdateTimer();
     }
@@ -84,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             BirthdayDisplayText(date: _calculator.nextBirthday),
             const SizedBox(height: 30),
-            CircularProgress(progress: _targetProgress),
+            CircularProgress(progress: _targetProgress, days: _daysUntilNextBirthday),
             const SizedBox(height: 70),
             BirthdayDatePicker(
               selectedDay: _calculator.day,
