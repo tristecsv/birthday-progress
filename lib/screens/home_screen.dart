@@ -1,4 +1,6 @@
 import 'package:birthday_progress/logic/widget_update_service.dart';
+import 'package:birthday_progress/state/settings_notifier.dart';
+import 'package:birthday_progress/widgets/home_appbar.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:birthday_progress/widgets/birthday_display_text.dart';
@@ -29,13 +31,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadSavedBirthDay() async {
     final savedDate = await BirthdayStorage.load();
-    if (savedDate != null) {
-      _calculator = BirthdayCalculator(
-        day: savedDate.day,
-        month: savedDate.month,
-      );
-      await WidgetUpdateService.updateWidget(savedDate.day, savedDate.month);
-    }
+    _calculator = BirthdayCalculator(
+      day: savedDate.day,
+      month: savedDate.month,
+    );
+    await WidgetUpdateService.updateWidget(
+      day: savedDate.day,
+      month: savedDate.month,
+    );
 
     if (mounted) {
       _daysUntilNextBirthday = _calculator.daysUntilNextBirthday;
@@ -61,7 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final date = DateTime(2000, _calculator.month, _calculator.day);
     await BirthdayStorage.save(date);
-    await WidgetUpdateService.updateWidget(_calculator.day, _calculator.month);
+    await WidgetUpdateService.updateWidget(
+      day: _calculator.day,
+      month: _calculator.month,
+    );
 
     if (mounted) {
       _daysUntilNextBirthday = _calculator.daysUntilNextBirthday;
@@ -89,22 +95,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            BirthdayDisplayText(date: _calculator.nextBirthday),
-            const SizedBox(height: 30),
-            CircularProgress(progress: _targetProgress, days: _daysUntilNextBirthday),
-            const SizedBox(height: 70),
-            BirthdayDatePicker(
-              selectedDay: _calculator.day,
-              selectedMonth: _calculator.month,
-              onDayChanged: (day) => _onDateChanged(day: day),
-              onMonthChanged: (month) => _onDateChanged(month: month),
-            ),
-          ],
+    final notifier = SettingsScope.of(context);
+    final settings = notifier.settings;
+
+    return SafeArea(
+      child: Scaffold(
+        appBar: const HomeAppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              BirthdayDisplayText(date: _calculator.nextBirthday),
+              const SizedBox(height: 30),
+              CircularProgress(
+                progress: _targetProgress,
+                days: _daysUntilNextBirthday,
+                showPercent: settings.showPercent,
+                showDays: settings.showDays,
+              ),
+              const SizedBox(height: 70),
+              BirthdayDatePicker(
+                selectedDay: _calculator.day,
+                selectedMonth: _calculator.month,
+                onDayChanged: (day) => _onDateChanged(day: day),
+                onMonthChanged: (month) => _onDateChanged(month: month),
+              ),
+            ],
+          ),
         ),
       ),
     );

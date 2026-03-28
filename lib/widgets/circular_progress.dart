@@ -1,6 +1,5 @@
-import 'package:birthday_progress/utils/constants.dart';
+import 'package:birthday_progress/widgets/circular_progress_view.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class CircularProgress extends StatefulWidget {
   final double progress;
@@ -10,6 +9,8 @@ class CircularProgress extends StatefulWidget {
   final Color? progressColor;
   final Color? trackColor;
   final Duration animationDuration;
+  final bool showPercent;
+  final bool showDays;
 
   const CircularProgress({
     super.key,
@@ -19,14 +20,17 @@ class CircularProgress extends StatefulWidget {
     this.strokeWidth = 18.0,
     this.progressColor,
     this.trackColor,
-    this.animationDuration = AppConstants.progressAnimationDuration,
+    this.animationDuration = const Duration(milliseconds: 600),
+    this.showPercent = true,
+    this.showDays = true,
   });
 
   @override
   State<CircularProgress> createState() => _CircularProgressState();
 }
 
-class _CircularProgressState extends State<CircularProgress> with SingleTickerProviderStateMixin {
+class _CircularProgressState extends State<CircularProgress>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
 
@@ -89,124 +93,26 @@ class _CircularProgressState extends State<CircularProgress> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
-        animation: _progressAnimation,
-        builder: (context, child) {
-          final int percentage = (_progressAnimation.value.clamp(0.0, 1.0) * 100).toInt();
-          final theme = Theme.of(context);
-          final resolvedProgressColor = widget.progressColor ?? theme.colorScheme.primary;
-          final resolvedTrackColor = widget.trackColor ?? theme.colorScheme.surfaceContainerHighest;
+      animation: _progressAnimation,
+      builder: (context, child) {
+        final progress = _progressAnimation.value.clamp(0.0, 1.0);
+        final percentage = (progress * 100).toInt();
 
-          return SizedBox(
-            width: widget.size,
-            height: widget.size,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                CustomPaint(
-                  size: Size(widget.size, widget.size),
-                  painter: _ProgressRingPainter(
-                    progress: _progressAnimation.value,
-                    strokeWidth: widget.strokeWidth,
-                    progressColor: resolvedProgressColor,
-                    trackColor: resolvedTrackColor,
-                  ),
-                ),
-                Positioned(
-                  top: widget.size / 3,
-                  child: Icon(Icons.cake_rounded, size: widget.size / 3),
-                ),
-                Positioned(
-                  bottom: widget.size / 6,
-                  child: Text(
-                    '$percentage%',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                  ),
-                ),
-                Text(
-                  '${widget.days} días',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                ),
-              ],
-            ),
-          );
-        });
-  }
-}
-
-class _ProgressRingPainter extends CustomPainter {
-  final double progress;
-  final double strokeWidth;
-  final Color progressColor;
-  final Color trackColor;
-
-  _ProgressRingPainter({
-    required this.progress,
-    required this.strokeWidth,
-    required this.progressColor,
-    required this.trackColor,
-  });
-
-  static const paintingStyle = PaintingStyle.stroke;
-  static const strokeCap = StrokeCap.round;
-
-  static const startAngle = 150 * math.pi / 180;
-  static const totalSweep = 240 * math.pi / 180;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 2 - strokeWidth / 2;
-
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    // ---------- TRACK ----------
-    final trackPaint = Paint()
-      ..color = trackColor
-      ..style = paintingStyle
-      ..strokeWidth = strokeWidth
-      ..strokeCap = strokeCap;
-
-    canvas.drawArc(
-      rect,
-      startAngle,
-      totalSweep,
-      false,
-      trackPaint,
+        return CircularProgressView(
+          progress: progress,
+          percentage: percentage,
+          days: widget.days,
+          size: widget.size,
+          strokeWidth: widget.strokeWidth,
+          progressColor: widget.progressColor ?? cs.primary,
+          trackColor: widget.trackColor ?? cs.surfaceContainerHighest,
+          showPercent: widget.showPercent,
+          showDays: widget.showDays,
+        );
+      },
     );
-
-    // // ---------- PROGRESS ----------
-    final clampedProgress = progress.clamp(0.0, 1.0);
-    final progressSweep = totalSweep * clampedProgress;
-
-    final progressPaint = Paint()
-      ..color = progressColor
-      ..style = paintingStyle
-      ..strokeWidth = strokeWidth
-      ..strokeCap = strokeCap;
-
-    canvas.drawArc(
-      rect,
-      startAngle,
-      progressSweep,
-      false,
-      progressPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.trackColor != trackColor ||
-        oldDelegate.progressColor != progressColor ||
-        oldDelegate.strokeWidth != strokeWidth;
   }
 }

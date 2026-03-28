@@ -10,7 +10,7 @@ class BirthdayStorage {
     await prefs.setInt(_keyMonth, date.month);
   }
 
-  static Future<DateTime?> load() async {
+  static Future<DateTime> load() async {
     final prefs = await SharedPreferences.getInstance();
     final month = prefs.getInt(_keyMonth) ?? 1;
     final day = prefs.getInt(_keyDay) ?? 1;
