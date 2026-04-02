@@ -2,7 +2,16 @@
 <resources>
     <string name="app_name">Birthday</string>
     <string name="widget_description">Muestra el progreso desde tu último cumpleaños hasta el próximo</string>
+
     <string name="progress_ring_description">Anillo de progreso del cumpleaños</string>
     <string name="icon_cake_description">Icono de pastel de cumpleaños</string>
+
+    <string name="percentage_format">%1$d%%</string>
+    <plurals name="day_format">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+
     <string name="default_percentage">0</string>
+    <string name="default_day">0 días</string>
 </resources>

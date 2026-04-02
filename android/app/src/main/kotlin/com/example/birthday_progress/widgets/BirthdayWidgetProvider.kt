@@ -61,11 +61,20 @@ class BirthdayWidgetProvider : AppWidgetProvider() {
 
         private var systemReceiver: TimeChangeSystemReceiver? = null
 
+        private const val PREFS_NAME = "FlutterSharedPreferences"
+        private const val KEY_SHOW_PERCENT = "flutter.birthday_showPercent"
+        private const val KEY_SHOW_DAYS = "flutter.birthday_showDays"
+
         fun updateWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
             widgetId: Int
         ) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            val showPercent = prefs.getBoolean(KEY_SHOW_PERCENT, true)
+            val showDays = prefs.getBoolean(KEY_SHOW_DAYS, false)
+
             val birthdayData = BirthdayStorage(context).load()
 
             val calculator = BirthdayCalculator(
@@ -74,12 +83,44 @@ class BirthdayWidgetProvider : AppWidgetProvider() {
             )
             val progress = calculator.calculate()
             val percentage = (progress.coerceIn(0.0, 1.0) * 100).toInt()
+            val days = calculator.daysUntilNextBirthday()
 
             val progressBitmap = BirthdayWidgetRender().render(progress)
 
-            val views = RemoteViews(context.packageName, R.layout.birthday_widget)
-            views.setTextViewText(R.id.percentage_text, "$percentage")
+            val isCombined = showPercent && showDays
+
+            val views = RemoteViews(
+                context.packageName,
+                if (isCombined) R.layout.widget_combined else R.layout.widget_single
+            )
+
             views.setImageViewBitmap(R.id.progress_ring, progressBitmap)
+
+            val percentTextFormatted = context.getString(R.string.percentage_format, percentage)
+            val dayTextFormatted = context.resources.getQuantityString(R.plurals.day_format, days, days)
+
+            when {
+                isCombined -> {
+                    views.setTextViewText(R.id.percentage_text, percentTextFormatted)
+                    views.setTextViewText(R.id.day_text, dayTextFormatted)
+                }
+                showPercent -> {
+                    views.setViewVisibility(R.id.percentage_text, android.view.View.VISIBLE)
+                    views.setViewVisibility(R.id.day_text, android.view.View.GONE)
+
+                    views.setTextViewText(R.id.percentage_text, percentage.toString())
+                }
+                showDays -> {
+                    views.setViewVisibility(R.id.percentage_text, android.view.View.GONE)
+                    views.setViewVisibility(R.id.day_text, android.view.View.VISIBLE)
+
+                    views.setTextViewText(R.id.day_text, dayTextFormatted)
+                }
+                else -> {
+                    views.setViewVisibility(R.id.percentage_text, android.view.View.GONE)
+                    views.setViewVisibility(R.id.day_text, android.view.View.GONE)
+                }
+            }
 
             configureClickIntent(context, views)
 
