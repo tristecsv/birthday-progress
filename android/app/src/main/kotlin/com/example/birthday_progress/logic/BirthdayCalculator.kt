@@ -10,8 +10,9 @@ class BirthdayCalculator(private val day: Int, private val month: Int) {
 
     fun calculate(): Double {
         val now = Calendar.getInstance()
-        val next = getNextBirthday(now)
-        val last = getLastBirthday(next)
+
+        val next = getNextBirthday()
+        val last = getLastBirthday()
 
         val totalMillis = next.timeInMillis - last.timeInMillis
         val elapsedMillis = now.timeInMillis - last.timeInMillis
@@ -21,24 +22,40 @@ class BirthdayCalculator(private val day: Int, private val month: Int) {
         return (elapsedMillis.toDouble() / totalMillis.toDouble()).coerceIn(0.0, 1.0)
     }
 
-    private fun getNextBirthday(now: Calendar): Calendar {
-        val next = Calendar.getInstance().apply {
-            set(Calendar.YEAR, now.get(Calendar.YEAR))
-            set(Calendar.MONTH, month - 1)
-            set(Calendar.DAY_OF_MONTH, day)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
+    fun daysUntilNextBirthday(): Int {
+        val now = Calendar.getInstance()
+        now.set(Calendar.HOUR_OF_DAY, 0)
+        now.set(Calendar.MINUTE, 0)
+        now.set(Calendar.SECOND, 0)
+        now.set(Calendar.MILLISECOND, 0)
+
+        val next = getNextBirthday()
+
+        val diffMillis = next.timeInMillis - now.timeInMillis
+
+        val days = (diffMillis / (1000L * 60 * 60 * 24)).toInt()
+
+        return maxOf(days, 0)
+    }
+
+    private fun getNextBirthday(): Calendar {
+        val now = Calendar.getInstance()
+
+        val next = now.clone() as Calendar
+        next.set(Calendar.MONTH, month - 1)
+        next.set(Calendar.DAY_OF_MONTH, day)
+        next.set(Calendar.HOUR_OF_DAY, 0)
+        next.set(Calendar.MINUTE, 0)
+        next.set(Calendar.SECOND, 0)
+        next.set(Calendar.MILLISECOND, 0)
 
         if (next.before(now)) next.add(Calendar.YEAR, 1)
 
         return next
     }
 
-    private fun getLastBirthday(nextBirthday: Calendar): Calendar {
-        val last = nextBirthday.clone() as Calendar
+    private fun getLastBirthday(): Calendar {
+        val last = getNextBirthday()
         last.add(Calendar.YEAR, -1)
 
         return last
